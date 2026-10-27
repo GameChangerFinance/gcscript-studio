@@ -1,0 +1,10 @@
+pnpm-lock.yaml
+public/*.json.full
+public/*.json.min
+public/examples/
+dist/
+coverage/
+node_modules/
+playwright-report/
+test-results/
+lib/

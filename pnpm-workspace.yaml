@@ -1,0 +1,6 @@
+# Upstream parents pin versions with published security advisories.
+# This replaces installed dependencies; GC's prebundled browser runtime is upstream-owned.
+overrides:
+  monaco-editor>dompurify: 3.4.17
+  '@gamechanger-finance/gc>fast-uri': 3.1.9
+  ajv>fast-uri: 3.1.9

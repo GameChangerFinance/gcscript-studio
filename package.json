@@ -1,0 +1,90 @@
+{
+  "name": "gcscript-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A schema-driven GCScript IDE with code, node and block editors",
+  "author": "zxpectre",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GameChangerFinance/gcscript-studio.git"
+  },
+  "packageManager": "pnpm@11.4.0",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "pnpm typecheck && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "check": "pnpm typecheck && pnpm lint && pnpm test:coverage && pnpm build && pnpm test:consumer",
+    "build:core": "vite build --config vite.core.config.ts && tsc -p tsconfig.lib.json",
+    "test:consumer": "pnpm build:core && tsc -p tests/consumer/tsconfig.json && node --test tests/consumer/core.test.ts"
+  },
+  "dependencies": {
+    "@gamechanger-finance/gc": "1.2.4",
+    "@retejs/lit-plugin": "2.0.8",
+    "blockly": "13.4.0",
+    "bootstrap": "5.3.8",
+    "bootstrap-icons": "1.13.1",
+    "dompurify": "3.4.17",
+    "jsonc-parser": "3.3.1",
+    "lit": "3.3.1",
+    "marked": "16.4.2",
+    "monaco-editor": "0.57.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "rete": "2.0.6",
+    "rete-area-plugin": "2.3.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@playwright/test": "1.64.1",
+    "@types/bootstrap": "^5.2.10",
+    "@types/node": "^24.10.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^6.0.0",
+    "@vitest/coverage-v8": "5.0.5",
+    "eslint": "^9.39.0",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^16.5.0",
+    "jsdom": "^27.1.0",
+    "prettier": "^3.6.2",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.2",
+    "vite": "8.3.4",
+    "vitest": "5.0.5"
+  },
+  "engines": {
+    "node": ">=24.12.0"
+  },
+  "main": "./lib/index.js",
+  "module": "./lib/index.js",
+  "types": "./lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "import": "./lib/index.js"
+    },
+    "./config": {
+      "types": "./lib/types/config.d.ts",
+      "import": "./lib/config.js"
+    },
+    "./source/*": "./src/*",
+    "./extras": "./public/extras.json.full"
+  },
+  "files": [
+    "lib",
+    "src",
+    "public/extras.json.full",
+    "LICENSE",
+    "README.md"
+  ]
+}

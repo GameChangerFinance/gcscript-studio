@@ -2,7 +2,9 @@
 
 # GCScript Studio
 
-**Write or edit 100+ examples. Explore as code, nodes, or blocks. Build multi-file projects. Run it in GameChanger Wallet or your wallet of choice**
+[![GCScript Studio browser IDE showing Monaco code, Blockly blocks, ISL tooltips and a schema-driven inspector](public/branding/readme-hero.png)](https://gamechangerfinance.github.io/gcscript-studio/)
+
+**Write or edit 100+ examples. Explore as code, nodes, or blocks. Build multi-file projects. Run it in GameChanger Wallet or your wallet of choice.**
 
 GCScript Studio is a browser IDE for GCScript DSL and Inline Scripting Language (ISL). It combines a Monaco code editor, a navigable Rete scope graph, a Blockly workspace, and a shared schema-driven inspector. Your project stays in your browser; no Studio backend or wallet connection is required to edit and build.
 

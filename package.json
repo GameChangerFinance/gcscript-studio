@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "A schema-driven GCScript IDE with code, node and block editors",
+  "description": "Browser IDE for GCScript DSL and ISL for building in Cardano and other ecosystems: code, nodes, blocks, 100+ examples, multi-file builds, HTML+JS, React, Express dapp code generation. Run code in GameChanger Wallet or your wallet of choice. Edit and build locally. Embed and integrate with ease with iframes and links. No dependencies required.",
   "author": "zxpectre",
   "license": "MIT",
   "repository": {
@@ -25,7 +25,8 @@
     "test:e2e": "playwright test",
     "check": "pnpm typecheck && pnpm lint && pnpm test:coverage && pnpm build && pnpm test:consumer",
     "build:core": "vite build --config vite.core.config.ts && tsc -p tsconfig.lib.json",
-    "test:consumer": "pnpm build:core && tsc -p tests/consumer/tsconfig.json && node --test tests/consumer/core.test.ts"
+    "test:consumer": "pnpm build:core && tsc -p tests/consumer/tsconfig.json && node --test tests/consumer/core.test.ts",
+    "branding:prepare": "node scripts/prepare-branding.mjs"
   },
   "dependencies": {
     "@gamechanger-finance/gc": "1.2.4",
@@ -86,5 +87,27 @@
     "public/extras.json.full",
     "LICENSE",
     "README.md"
+  ],
+  "keywords": [
+    "gcscript",
+    "gamechanger",
+    "gamechanger-wallet",
+    "cardano",
+    "isl",
+    "browser-ide",
+    "visual-programming",
+    "low-code",
+    "monaco-editor",
+    "blockly",
+    "retejs",
+    "jsonc",
+    "schema-driven",
+    "developer-tools",
+    "dapp-development",
+    "wallet-integration",
+    "local-first",
+    "typescript",
+    "vite",
+    "embeddable"
   ]
 }

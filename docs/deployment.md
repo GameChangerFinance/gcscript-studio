@@ -2,6 +2,10 @@
 
 The deployment artifact is `dist/`. `public/` holds source assets copied by Vite; do not edit generated files inside `dist/`.
 
+Search/social metadata uses the official Pages URL. For a different public host,
+update the canonical, card and sitemap URLs together as described in
+[branding and discovery](branding.md). Favicons follow the configured Vite base.
+
 ## Base paths and callbacks
 
 The default Vite base is `/`. Set `VITE_BASE_PATH=/gcscript-studio/` when hosting under that directory. Asset loading, extras loading and wallet callbacks all use this deployment base rather than the current document's directory.

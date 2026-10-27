@@ -177,9 +177,13 @@ export function App({ controller }: { controller: StudioController }) {
           <i aria-hidden="true" className="bi bi-layout-sidebar-inset fs-5" />
         </button>
         <div className="brand">
-          <div className="brand-logo">
-            <i aria-hidden="true" className="bi bi-diagram-3-fill" />
-          </div>
+          <img
+            className="brand-logo"
+            src={`${import.meta.env.BASE_URL}branding/logo.svg`}
+            alt=""
+            width={32}
+            height={32}
+          />
           <div>
             GCScript <span style={{ color: 'var(--accent)' }}>Studio</span>
             <div className="subbrand">CODE + VISUAL EDITOR</div>

@@ -190,3 +190,73 @@ test('nested metadata ISL, Find/Replace toggle and block diagnostics', async ({ 
   await expect(page.locator('.blocks-diagnostics')).toHaveCount(0);
   await expect(page.locator('.studio-block-error')).toHaveCount(0);
 });
+
+test('Code hover crosses Split panes; shared tooltip toggle and Escape work without editor focus', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1600, height: 1000 });
+  await page.route('https://wallet.gamechanger.finance/schema/**', (route) =>
+    route.fulfill({
+      body: readFileSync('tests/fixtures/runtime-schema.json', 'utf8'),
+      contentType: 'application/json',
+    }),
+  );
+  await page.goto('./');
+  const editor = page.getByRole('textbox', { name: 'Editor content' });
+  await expect(editor).toBeVisible();
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.evaluate(() =>
+    navigator.clipboard.writeText(
+      JSON.stringify(
+        { type: 'script', run: { build: { type: 'buildTx', tx: { outputs: [] } } } },
+        null,
+        2,
+      ),
+    ),
+  );
+  await editor.press('Control+A');
+  await editor.press('Control+v');
+  await page.getByRole('button', { name: 'Split', exact: true }).click();
+  const call = page
+    .locator('.view-line span')
+    .filter({ hasText: /^buildTx$/ })
+    .first();
+  await call.hover();
+  const hover = page.locator('.studio-monaco-overlays .monaco-hover:visible');
+  await expect(hover).toContainText('Transaction Builder');
+  await expect(hover).toHaveCSS('background-color', 'rgb(21, 30, 48)');
+  const box = await hover.boundingBox(),
+    code = await page.locator('.codebox:not(.hidden)').boundingBox();
+  expect(box!.x + box!.width).toBeGreaterThan(code!.x + code!.width + 10);
+  const x = code!.x + code!.width + 8,
+    y = box!.y + 20;
+  expect(
+    await page.evaluate(
+      ({ x, y }) => Boolean(document.elementFromPoint(x, y)?.closest('.monaco-hover')),
+      { x, y },
+    ),
+  ).toBe(true);
+  await page.screenshot({ path: '/tmp/studio-hover-over-split.png' });
+  await page.keyboard.press('Escape');
+  await expect(hover).toHaveCount(0);
+  await page.locator('.blocklyText').first().hover();
+  await expect(page.locator('.studio-doc-popover')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.studio-doc-popover')).toHaveCount(0);
+  const toggle = page.getByRole('button', { name: 'Toggle tooltips', exact: true });
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await call.hover();
+  await expect(hover).toHaveCount(0);
+  await page.getByRole('button', { name: 'Open Studio options' }).click();
+  await expect(page.getByLabel('Show editor tooltips (Code, Nodes, Blocks)')).not.toBeChecked();
+  await page.getByRole('button', { name: 'Close dialog', exact: true }).click();
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Toggle Find and Replace (Ctrl+F / Ctrl+H)' }).hover();
+  await expect(page.getByRole('tooltip')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('tooltip')).toHaveCount(0);
+  await call.hover();
+  await expect(hover).toBeVisible();
+});

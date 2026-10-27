@@ -81,7 +81,9 @@ The browser codec adapter delegates to `gc.encode.url` and `gc.encodings.msg.dec
 The controller applies decoded imports through existing normal-mode prompts or an
 explicit embedded replacement. `sessionConfig` prefixes embedded project/options/run/result
 keys with `embed:` while leaving schema cache keys shared. Bootstrap scopes callback
-capture before mounting React; embedded callbacks retain `embed=true`. URL view flags
+capture before mounting React; embedded callbacks carry `embed:` inside the correlation
+fragment, keeping the wallet-facing URL to a single result query. Capture restores the
+clean `embed=true` URL after removing returned data. URL view flags
 are startup overrides, and `StudioState.embedded` owns compact presentation.
 
 Documentation display has independent depth/node/character budgets and sanitizes untrusted markup. Display limits never prune validator schemas. The highlighter bounds input size, AST visits and decorations. Editor and graphical adapters own and dispose subscriptions, pending updates, models, observers, and workers.

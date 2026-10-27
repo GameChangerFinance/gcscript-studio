@@ -15,6 +15,14 @@ limits. Links never execute imported code automatically. The embedded namespace 
 workspace separation, not an origin/security boundary. Links may appear in browser
 history, host logs and shared documentation; do not publish private project data.
 
+The three-editor gallery restricts iframe navigation to its fixed IDE edit endpoint
+and hash-authorizes its small inline bootstrap. Child frames remain dormant when
+the gallery is itself nested. Apache, Netlify, Vercel and Vite additionally deny
+framing that gallery document with response headers; GitHub Pages relies on the
+client guard and cannot provide the same header-enforced anti-framing guarantee.
+The embeddable IDE itself deliberately remains frameable. The parent gallery has
+no wallet-result handler or executable command bridge.
+
 ## Bundled dependencies
 
 The installed dependency graph is pinned and checked with `pnpm audit`. Targeted overrides replace upstream-pinned DOMPurify and fast-uri packages with patched releases. The official GC package also ships a prebuilt browser runtime containing bundled dependencies; package overrides do not rewrite that artifact. Upstream vendored fixes require an updated GC browser release. Studio restricts build resources to its virtual `app://` filesystem. A clean package audit does not certify vendored code.

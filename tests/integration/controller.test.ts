@@ -8,11 +8,12 @@ import { buildService } from '../../src/adapters/build';
 import { runtime, extras } from '../fixtures';
 import { put } from '../../src/core/project/vfs';
 import { captureWalletReturn, consumeReturns, registerRun } from '../../src/adapters/wallet/bridge';
-import { restoreSession, persistSession } from '../../src/adapters/persistence';
+import { restoreSession, persistSession, sessionConfig } from '../../src/adapters/persistence';
 import { initialState } from '../../src/core/state';
 import { createProject } from '../../src/core/project/vfs';
 import { renderMarkdown } from '../../src/components/Documentation';
 import { encodeEditLink } from '../../src/adapters/edit-links';
+import { walletCallbackContext, withWalletCallback } from '../../src/core/wallet';
 let controller: StudioController | undefined;
 beforeEach(() => {
   localStorage.clear();
@@ -75,7 +76,8 @@ describe('controller safety and persistence', () => {
     vi.spyOn(window, 'open').mockReturnValue({} as Window);
     await app.run();
     const source = JSON.parse(app.store.getSnapshot().project.files['main.gcscript']!.text);
-    expect(new URL(source.returnURLPattern).searchParams.get('embed')).toBe('true');
+    expect(walletCallbackContext(new URL(source.returnURLPattern)).embedded).toBe(true);
+    expect(source.returnURLPattern).not.toContain('&');
     expect(localStorage.getItem(DEFAULT_CONFIG.storage.project)).toBe(saved);
   });
   it('does not write the whole project for cursor/notification changes', async () => {
@@ -180,6 +182,33 @@ describe('controller safety and persistence', () => {
   });
 });
 describe('wallet callback adapter', () => {
+  it('restores embedded redirect results from the fragment marker without a parent host', async () => {
+    const config = sessionConfig(DEFAULT_CONFIG, true);
+    const initial = initialState(createProject(config, 'embedded-return'), config, false);
+    persistSession(initial, config, localStorage);
+    registerRun(config, {
+      token: 'embedded-token',
+      projectId: initial.project.id,
+      resultsPath: 'results/result.json',
+      created: Date.now(),
+      mode: 'redirect',
+    });
+    const callback = JSON.parse(
+      withWalletCallback('{}', location.origin + '/', 'embedded-token', true),
+    ).returnURLPattern;
+    window.history.replaceState(
+      null,
+      '',
+      callback.replace('{result}', encodeURIComponent('{"exports":{"answer":42}}')),
+    );
+    expect(await captureWalletReturn(config)).toBe(false);
+    expect(location.search).toBe('?embed=true');
+    expect(location.hash).toBe('');
+    const app = await ready();
+    expect(app.store.getSnapshot().embedded).toBe(true);
+    expect(app.store.getSnapshot().project.id).toBe(initial.project.id);
+    expect(app.store.getSnapshot().project.files['results/result.json']?.text).toContain('answer');
+  });
   it('rejects unknown and expired callbacks after scrubbing the URL', async () => {
     window.history.replaceState(
       null,

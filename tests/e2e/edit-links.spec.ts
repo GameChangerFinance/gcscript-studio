@@ -199,15 +199,19 @@ test('iframe uses the requested block and node views with compact geometry and f
   await page.setViewportSize({ width: 360, height: 540 });
   const mobile = page.frameLocator('iframe');
   await expectCompactEmbeddedLayout(mobile);
-  // CI fonts can wrap the status message; exercise that layout explicitly on every platform.
+  // Force two lines independently of whether asynchronous diagnostics have added a footer counter.
   const wrappedStatus = await mobile.locator('.statusbar [role="status"]').evaluate((status) => {
-    status.textContent = 'Project imported into the embedded workspace and ready to edit.';
+    status.replaceChildren(
+      document.createTextNode('Embedded project imported.'),
+      document.createElement('br'),
+      document.createTextNode('Ready to edit.'),
+    );
     return {
       height: status.getBoundingClientRect().height,
       lineHeight: parseFloat(getComputedStyle(status).lineHeight),
     };
   });
-  expect(wrappedStatus.height).toBeGreaterThan(wrappedStatus.lineHeight);
+  expect(wrappedStatus.height).toBeGreaterThan(wrappedStatus.lineHeight * 1.5);
   await expectCompactEmbeddedLayout(mobile);
   await page.screenshot({ path: '/tmp/studio-embed-mobile.png' });
 });

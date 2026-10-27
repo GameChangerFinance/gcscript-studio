@@ -53,11 +53,15 @@ export function createCodeEditor(
     syncing = false;
   let report: ValidationReport | null = null;
   const models = new Map<string, monaco.editor.ITextModel>();
+  const overlays = document.createElement('div');
+  overlays.className = 'studio-monaco-overlays monaco-component';
+  document.body.appendChild(overlays);
   const editor = monaco.editor.create(host, {
     value: '',
     language: 'json',
     automaticLayout: true,
     fixedOverflowWidgets: true,
+    overflowWidgetsDomNode: overlays,
     useShadowDOM: false,
     hover: {
       enabled: options.codeTooltips ? 'on' : 'off',
@@ -74,6 +78,10 @@ export function createCodeEditor(
     formatOnPaste: true,
     padding: { top: 16 },
   });
+  const dismissHover = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') editor.trigger('studio', 'editor.action.hideHover', null);
+  };
+  document.addEventListener('keydown', dismissHover, true);
   const decorations = editor.createDecorationsCollection();
   let timer: ReturnType<typeof setTimeout> | undefined;
   const rules = new Map<string, string>();
@@ -461,6 +469,8 @@ export function createCodeEditor(
       hover.dispose();
       fixes.dispose();
       editor.dispose();
+      document.removeEventListener('keydown', dismissHover, true);
+      overlays.remove();
       models.forEach((model) => model.dispose());
       style.remove();
     },

@@ -28,7 +28,17 @@ export function walletParameters(
     disableNetworkRouter: options.disableNetworkRouter,
   };
 }
-/** A fragment carries callback correlation without a second query field. The caller persists it. */
+const EMBEDDED_RUN_PREFIX = 'embed:';
+
+/** Session context shares the correlation fragment, keeping HTML-sensitive separators out of source. */
+export function walletCallbackContext(url: URL): { token: string | null; embedded: boolean } {
+  const value = new URLSearchParams(url.hash.slice(1)).get('studioRun');
+  if (value?.startsWith(EMBEDDED_RUN_PREFIX))
+    return { token: value.slice(EMBEDDED_RUN_PREFIX.length), embedded: true };
+  return { token: value, embedded: false };
+}
+
+/** One query field avoids the callback separator observed being HTML-escaped by the wallet. */
 export function withWalletCallback(
   input: string,
   baseURL: string,
@@ -40,8 +50,7 @@ export function withWalletCallback(
     throw Error('Wallet input must be a built GCScript object');
   const callback = new URL('index.html', baseURL);
   callback.search = '?result={result}';
-  if (embedded) callback.searchParams.set('embed', 'true');
-  callback.hash = 'studioRun=' + encodeURIComponent(token);
+  callback.hash = 'studioRun=' + encodeURIComponent((embedded ? EMBEDDED_RUN_PREFIX : '') + token);
   return JSON.stringify({
     ...code,
     returnURLPattern: callback.href.replace(/%7Bresult%7D/gi, '{result}'),

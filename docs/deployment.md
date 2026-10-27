@@ -8,7 +8,7 @@ The default Vite base is `/`. Set `VITE_BASE_PATH=/gcscript-studio/` when hostin
 
 Wallet callback URLs point to `<base>/index.html?result={result}#studioRun=<correlation-id>`. The callback removes result data from history before decoding, validates the pending run, persists the data-only envelope, notifies the same-origin opener, and closes the popup. A lost opener is handled through the storage event. Cross-device QR results need manual import.
 
-Direct wallet launching enforces the Options network through `networkTag` by default. Only the explicit **Disable network router** option omits it. Embedded wallet callbacks include `embed=true` so capture and redirect restoration use the isolated embedded session.
+Direct wallet launching enforces the Options network through `networkTag` by default. Only the explicit **Disable network router** option omits it. Embedded wallet callbacks carry the session marker inside the correlation fragment (`#studioRun=embed%3A...`), avoiding an extra query separator in wallet-facing source. Bootstrap resolves that marker before reading session storage; capture restores a clean `?embed=true` URL for redirect mode.
 
 ## Editor links and iframes
 
@@ -17,6 +17,16 @@ Direct wallet launching enforces the Options network through `networkTag` by def
 For documentation embeds, allow the documentation origin in any custom `Content-Security-Policy: frame-ancestors` policy; do not send a conflicting `X-Frame-Options: DENY`/`SAMEORIGIN` header for cross-origin embeds. The embedding page must allow the IDE origin through its `frame-src` policy. If an iframe sandbox is used, it needs script support and browser storage access for the IDE; wallet launches additionally need popup permission. Choose these permissions for your trust model rather than adding a blanket sandbox combination. No parent-window command bridge is exposed.
 
 Verify a real encoded route inside an iframe at the deployment base. Code, Nodes and Blocks initialize from `view=code|node|block`. `embed=true` starts with collapsed side panels and separate project/options/run/result storage. Schema caches remain shared. See [link formats and examples](../README.md#open-in-ide-links-and-embedded-editors).
+
+The hosted `examples/gcscript-studio-three-ides.html` gallery has a separate policy:
+its meta CSP allows only its known IDE edit endpoint, and its bootstrap refuses to
+activate child frames when nested. Vite development/preview, Apache (`mod_headers`),
+Netlify (`_headers`) and Vercel additionally send `frame-ancestors 'none'` and
+`X-Frame-Options: DENY` for that HTML file only. GitHub Pages does not apply these
+custom headers; its protection against recursive gallery loading is the client
+guard. [A meta tag cannot enforce `frame-ancestors`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/frame-ancestors). Update path-specific host rules
+for custom subdirectory hosts. These restrictions must never be applied globally to
+the embeddable IDE. Keep the bootstrap CSP hash in sync when changing the HTML script.
 
 ## GitHub Pages
 

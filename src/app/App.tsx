@@ -106,7 +106,10 @@ export function App({ controller }: { controller: StudioController }) {
         setMenu(null);
     };
     const keyboard = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMenu(null);
+      if (event.key === 'Escape') {
+        setMenu(null);
+        setDoc(null);
+      }
       const target = event.target instanceof Element ? event.target : null;
       if (
         target?.closest('dialog') ||
@@ -536,6 +539,29 @@ export function App({ controller }: { controller: StudioController }) {
                 }}
               >
                 <i aria-hidden="true" className="bi bi-search" />
+              </button>
+              <button
+                className="icon-btn"
+                aria-label="Toggle tooltips"
+                data-tooltip={
+                  state.options.codeTooltips
+                    ? 'Hide tooltips in all editor views'
+                    : 'Show tooltips in all editor views'
+                }
+                aria-pressed={state.options.codeTooltips}
+                onClick={() =>
+                  controller.store.update((previous) => ({
+                    ...previous,
+                    options: { ...previous.options, codeTooltips: !previous.options.codeTooltips },
+                  }))
+                }
+              >
+                <i
+                  aria-hidden="true"
+                  className={
+                    state.options.codeTooltips ? 'bi bi-chat-square-text' : 'bi bi-chat-square'
+                  }
+                />
               </button>
               <span
                 className="view-action-separator"

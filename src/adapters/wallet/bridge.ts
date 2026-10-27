@@ -1,6 +1,6 @@
 import { gc } from '../gc';
 import type { StudioConfig } from '../../config';
-import { decodeWalletResult, parsePendingRun } from '../../core/wallet';
+import { decodeWalletResult, parsePendingRun, walletCallbackContext } from '../../core/wallet';
 import type { PendingRun } from '../../core/wallet';
 import type { JsonValue } from '../../core/json';
 import { isJsonValue } from '../../core/json';
@@ -17,9 +17,10 @@ export async function captureWalletReturn(config: StudioConfig): Promise<boolean
   const url = new URL(location.href),
     result = url.searchParams.get('result');
   if (result === null) return false;
-  const token = new URLSearchParams(url.hash.slice(1)).get('studioRun');
+  const { token, embedded } = walletCallbackContext(url);
   url.searchParams.delete('result');
   url.hash = '';
+  if (embedded) url.searchParams.set('embed', 'true');
   history.replaceState(history.state, '', url.pathname + url.search);
   if (!token) throw Error('Wallet returned without a Studio run identifier');
   const pending = parsePendingRun(

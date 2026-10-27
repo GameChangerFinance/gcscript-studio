@@ -4,12 +4,12 @@
 
 The complete local release checks pass:
 
-- `pnpm check`: typechecking, lint, all 134 unit/integration tests, coverage gates, production build and the reusable-core consumer check.
-- `pnpm test:e2e`: all 27 Chrome browser tests pass, including file/project imports, embedded sessions, wallet return capture and graphical editor history.
-- Five focused Chrome workflows pass against the production `/gcscript-studio/` build: file/project links, normal-mode cancellation, embedded iframe layouts and requested views, Markdown ISL hover, menus, tooltip preference, Find/Replace and block diagnostics. Screenshots are inspected for readability.
+- `pnpm check`: typechecking, lint, all 136 unit/integration tests, coverage gates, production build and the reusable-core consumer check.
+- `pnpm test:e2e`: all 31 Chrome browser tests pass, including file/project imports, embedded sessions, wallet return capture and graphical editor history. The gallery tests cover three independent iframe editors, a simulated cross-site wallet round trip, blocked unlisted frame URLs and nested-gallery prevention without response headers.
+- Nine focused Chrome workflows pass against the production `/gcscript-studio/` build: file/project links, normal-mode cancellation, embedded iframe layouts and requested views, gallery CSP/recursion guards, iframe wallet return capture, Markdown ISL hover across Split panes, menus, tooltip preference, Find/Replace and block diagnostics. Screenshots are inspected for readability.
 - `pnpm format:check`: source and documentation formatting pass.
 
-Measured core/config coverage: **95.32% statements, 88.33% branches, 98.03% functions, 98.25% lines**. This measures the configured core/config scope, not React/editor-adapter coverage.
+Measured core/config coverage: **95.33% statements, 88.37% branches, 98.05% functions, 98.26% lines**. This measures the configured core/config scope, not React/editor-adapter coverage.
 
 The wider suite also covers source editing, builds, validation, imports, graphical views, schema refresh, return capture, responsive dialogs, deep links and QR generation. The development-only Blockly harness checks lossless serialization, literal-data context, colors, comments, connected arguments and invalid-source guards; it is intentionally absent from production output.
 

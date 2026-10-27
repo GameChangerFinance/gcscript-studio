@@ -13,6 +13,7 @@ GCScript Studio is a browser IDE for GCScript DSL and Inline Scripting Language 
 - [Docs](https://github.com/GameChangerFinance/gamechanger.wallet/blob/main/docs/README.md)
 - [100+ examples](https://github.com/GameChangerFinance/gamechanger.wallet/blob/main/examples/README.md)
 - [Language reference](https://wallet.gamechanger.finance/doc/api/v2/)
+- [Official GCScript skill](https://github.com/GameChangerFinance/gcscript-dsl-skill)
 
 ## Run locally
 
@@ -54,7 +55,11 @@ Text changes in Blocks preserve neighboring JSONC comments. Structural changes t
 
 Validation runs automatically after an editing pause and periodically during sustained editing. Monaco underlines problems, shows concise GC suggestions and expected examples, and offers **Ctrl+.** quick fixes for exact enum/function corrections. Blocks shows the same GC diagnostics with warning icons, error outlines and a clickable message list that selects the affected value or its nearest container. Use the status-bar problems button or **Validate** for the full report. **Show editor tooltips (Code, Nodes, Blocks)** is enabled by default in Options.
 
+The tooltip icon beside Find/Replace changes that same preference immediately. **Escape** dismisses open code, graphical and button tooltips. Code tooltips can extend across Split panes and sidebars within the IDE viewport.
+
 ## Open in IDE links and embedded editors
+
+See the [three-editor HTML example](https://gamechangerfinance.github.io/gcscript-studio/examples/gcscript-studio-three-ides.html) for a standalone documentation page with Code, Nodes and Blocks iframes. Its [HTML source](public/examples/gcscript-studio-three-ides.html) needs no build step or parent-side wallet handler. It allows only the fixed Studio edit endpoint in its iframe CSP, validates frame URLs, and loads no child IDEs if the gallery itself is nested. Supported static-host headers also deny framing the gallery; GitHub Pages uses the client guard because it does not apply custom response headers. The IDE remains embeddable. To host your own copy, update the IDE base, frame links and CSP together; changing the inline bootstrap requires refreshing its CSP hash.
 
 Use **Output → IDE file link** or **IDE project link** to share editable source. File links use the selected file (falling back to the active file) and preserve JSONC comments and formatting. Project links include every VFS file, binary assets, empty directories and the active file. These links open source for editing; they do not build or run it. Check **Embedded mode** in the output dialog to generate a compact editor link.
 
@@ -106,6 +111,8 @@ Embed the resulting URL in a documentation page:
 `embed=true`, `embed=1`, or bare `embed` enables the compact layout. `embed=false` and `embed=0` keep the normal layout. Embedded sessions initially collapse the explorer and inspector, hide secondary navigation, and retain Build, Validate, Run, Output, Options and view controls. Panel toggle buttons can reopen the explorer or inspector. `view=code|node|block` also works without embedded mode; unknown views use the default.
 
 Embedded links replace the **embedded workspace** without prompting. Normal links retain the usual add-file, save-project and replacement decisions. Embedded project/preferences and wallet-return records use a separate localStorage namespace; the normal project stays untouched. Embedded instances share that embedded namespace, while schemas share the usual cache. Browser iframe/storage policies still apply. Keep the iframe tall enough for the chosen editor, and enable popups in any embedding sandbox if users should run scripts in a wallet.
+
+**Run works inside the iframe without turning the parent page into a wallet host.** The IDE saves a correlated callback, opens the wallet popup and captures its returned exports itself. Wallet-facing callbacks contain only `?result={result}`; embedded context travels in the fragment (`#studioRun=embed%3A...`) to avoid HTML-escaped `&embed=true` separators. Capture restores the clean `?embed=true` app URL after saving the result. Browser storage and popup permissions are required; QR results on another device still use manual result import.
 
 Links carry their contents, including any project results. Share only files intended for publication. The configured limits are 2 MiB of encoded payload and 8 MiB of decoded JSON; browsers and hosts may impose much shorter URL limits. Use archives for large projects. The reusable browser adapter is `encodeEditLink` / `decodeEditLink` in `src/adapters/edit-links.ts`; route parsing and validated payload contracts live in `src/core/project/edit-link.ts`.
 

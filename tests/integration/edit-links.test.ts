@@ -4,10 +4,43 @@ import { decodeEditLink, encodeEditLink } from '../../src/adapters/edit-links';
 import { readStudioLaunch, parseEditImport } from '../../src/core/project/edit-link';
 import { createProject, mkdir, put } from '../../src/core/project/vfs';
 import { sessionConfig } from '../../src/adapters/persistence';
-import { withWalletCallback } from '../../src/core/wallet';
+import { withWalletCallback, walletCallbackContext } from '../../src/core/wallet';
+import { gc } from '../../src/adapters/gc';
+import { buildService } from '../../src/adapters/build';
+import { runtime } from '../fixtures';
 const base = 'https://studio.test/gcscript-studio/';
 const config = DEFAULT_CONFIG;
 describe('GC edit-link transport', () => {
+  it('preserves an ampersand-free embedded callback through repeated real builds and URL encoding', async () => {
+    const expected = JSON.parse(withWalletCallback('{}', base, 'roundtrip', true)).returnURLPattern;
+    let input = JSON.stringify({
+      type: 'script',
+      run: { address: { type: 'getCurrentAddress' } },
+      returnURLPattern: 'https://old.test/?result={result}&amp;amp;embed=true',
+    });
+    for (let pass = 0; pass < 3; pass++) {
+      input = withWalletCallback(input, base, 'roundtrip', true);
+      input = await buildService.build({
+        input,
+        fileUri: 'app:///main.gcscript',
+        files: {},
+        useSchema: runtime,
+        compactOutput: false,
+        doValidate: true,
+      });
+      const encoded = await gc.encode.url({
+        input,
+        apiVersion: '2',
+        network: 'preprod',
+        encoding: 'gzip',
+        disableNetworkRouter: true,
+        urlPattern: 'https://wallet.test/api/2/run/{gcscript}',
+      });
+      const decoded = await gc.encodings.msg.decoder(new URL(encoded).pathname.split('/').at(-1)!);
+      expect(decoded.returnURLPattern).toBe(expected);
+      expect(decoded.returnURLPattern).not.toContain('&');
+    }
+  });
   it('uses the actual GC gzip codec under a deployment subpath without wallet parameters', async () => {
     const script = { type: 'script', run: { address: { type: 'getCurrentAddress' } } };
     const url = await encodeEditLink(script, base, config, { embed: true, view: 'node' });
@@ -108,7 +141,10 @@ describe('GC edit-link transport', () => {
       JSON.parse(withWalletCallback('{}', base, 'token', true)).returnURLPattern,
     );
     expect(callback.pathname).toBe('/gcscript-studio/index.html');
-    expect(callback.searchParams.get('embed')).toBe('true');
+    expect(callback.searchParams.has('embed')).toBe(false);
+    expect(callback.href).not.toContain('&');
+    expect(walletCallbackContext(callback)).toEqual({ token: 'token', embedded: true });
+    expect(readStudioLaunch(callback.href, base, config).embedded).toBe(true);
     expect(callback.searchParams.get('result')).toBe('{result}');
   });
 });

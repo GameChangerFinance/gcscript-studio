@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'sha256-Yuy/HACgmC6vHtnYzkTV0ZTJIjgtHbAJfxk743rFX9c='; style-src 'unsafe-inline'; frame-src https://gamechangerfinance.github.io/gcscript-studio/api/2/edit/; base-uri 'none'; form-action 'none'; object-src 'none'"
+    />
+    <meta name="color-scheme" content="dark light" />
+    <title>GCScript Studio for Docs</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #080b16;
+        --paper: #101528;
+        --edge: #2b3452;
+        --muted: #9ba7c3;
+        --text: #eff3ff;
+        --cyan: #36d5e9;
+        --violet: #b294ff;
+        --gold: #f4b766;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background:
+          radial-gradient(ellipse 70% 35% at 20% -10%, #26365c 0%, transparent 80%),
+          radial-gradient(ellipse 50% 35% at 100% 5%, #2e1c53 0%, transparent 80%), var(--bg);
+        color: var(--text);
+        font:
+          15px/1.5 system-ui,
+          -apple-system,
+          Segoe UI,
+          sans-serif;
+      }
+      a {
+        color: var(--cyan);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .layout {
+        max-width: 1500px;
+        margin: auto;
+        padding: 34px clamp(16px, 3.6vw, 60px) 60px;
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 70px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.11em;
+      }
+      .mark {
+        height: 28px;
+        width: 28px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #32d9e9, #8144dd 75%);
+        display: grid;
+        place-items: center;
+        color: white;
+        font-size: 13px;
+      }
+      .small-link {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .intro {
+        max-width: 850px;
+        margin-bottom: 38px;
+      }
+      .kicker {
+        font-size: 12px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--cyan);
+        font-weight: 800;
+      }
+      h1 {
+        font-size: clamp(36px, 5vw, 70px);
+        line-height: 1.07;
+        letter-spacing: -0.055em;
+        margin: 16px 0 22px;
+        font-weight: 780;
+      }
+      h1 span {
+        background: linear-gradient(100deg, var(--cyan), var(--violet));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .lead {
+        font-size: 17px;
+        color: var(--muted);
+        max-width: 710px;
+      }
+      .specs {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 25px;
+      }
+      .chip {
+        border: 1px solid var(--edge);
+        background: #121a2b;
+        padding: 8px 13px;
+        border-radius: 100px;
+        color: #c4cce0;
+        font-size: 12px;
+      }
+      .sectionhead {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        margin: 36px 0 18px;
+      }
+      .sectionhead h3 {
+        font-size: 16px;
+        letter-spacing: -0.01em;
+        margin: 0;
+      }
+      .sectionhead .aside {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+      }
+      .panel {
+        min-width: 0;
+        padding: 19px;
+        background: linear-gradient(145deg, #161e34, #0f1426);
+        border: 1px solid var(--edge);
+        border-radius: 18px;
+        box-shadow: 0 12px 40px #0002;
+      }
+      .panel:nth-child(2) {
+        background: linear-gradient(145deg, #19172f, #101426);
+      }
+      .panel:nth-child(3) {
+        grid-column: 1/-1;
+      }
+      .panel-head {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        min-height: 50px;
+      }
+      .index {
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        width: 43px;
+        height: 43px;
+        flex: 0 0 43px;
+        color: var(--cyan);
+        font-weight: 800;
+        font-size: 14px;
+        background: #152c3c;
+        border: 1px solid #275568;
+      }
+      .panel:nth-child(2) .index {
+        color: var(--violet);
+        background: #292043;
+        border-color: #503f73;
+      }
+      .panel:nth-child(3) .index {
+        color: var(--gold);
+        background: #3a2c20;
+        border-color: #644626;
+      }
+      .panel-title {
+        min-width: 0;
+        flex: 1;
+      }
+      .eyebrow {
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+      h2 {
+        font-size: 18px;
+        margin: 2px 0 0;
+        letter-spacing: -0.02em;
+      }
+      .view-badge {
+        font-size: 10px;
+        white-space: nowrap;
+        background: #202a41;
+        border: 1px solid #37415c;
+        border-radius: 50px;
+        padding: 7px 9px;
+        color: #cad3e8;
+        font-weight: 800;
+        letter-spacing: 0.07em;
+      }
+      .description {
+        height: 43px;
+        color: var(--muted);
+        font-size: 13px;
+        margin: 12px 0 16px;
+      }
+      .frame-wrap {
+        border: 1px solid #333d58;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #090e1e;
+        position: relative;
+      }
+      .frame-wrap iframe {
+        display: block;
+        width: 100%;
+        height: 510px;
+        border: 0;
+        background: white;
+      }
+      .panel:nth-child(3) iframe {
+        height: 590px;
+      }
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 15px 2px 2px;
+        font-size: 12px;
+      }
+      .footnote {
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.7;
+        border-top: 1px solid var(--edge);
+        padding-top: 18px;
+      }
+      body.light {
+        color-scheme: light;
+        --bg: #eff3fc;
+        --paper: #fff;
+        --edge: #ccd5e9;
+        --muted: #53627b;
+        --text: #151e33;
+        --cyan: #007d96;
+        --violet: #6649ad;
+        --gold: #9c5d06;
+      }
+      body.light .panel {
+        background: #fff;
+      }
+      body.light .chip {
+        background: white;
+        color: #344359;
+      }
+      body.light .view-badge {
+        background: #f1f3f9;
+        border-color: #d9deea;
+        color: #54627d;
+      }
+      body.light .index {
+        background: #e5f4f7;
+      }
+      body.light .panel:nth-child(2) .index {
+        background: #f1eafe;
+      }
+      body.light .panel:nth-child(3) .index {
+        background: #fff2e2;
+      }
+      @media (max-width: 950px) {
+        .gallery {
+          grid-template-columns: 1fr;
+        }
+        .panel:nth-child(3) {
+          grid-column: auto;
+        }
+        .frame-wrap iframe,
+        .panel:nth-child(3) iframe {
+          height: 550px;
+        }
+        .top {
+          margin-bottom: 48px;
+        }
+      }
+      @media (max-width: 600px) {
+        .layout {
+          padding: 19px 12px 35px;
+        }
+        .panel {
+          padding: 12px;
+        }
+        .view-badge {
+          font-size: 9px;
+        }
+        .description {
+          height: auto;
+          min-height: 40px;
+        }
+        .frame-wrap iframe,
+        .panel:nth-child(3) iframe {
+          height: 560px;
+        }
+        .top {
+          margin-bottom: 42px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <header class="top">
+        <div class="brand">
+          <div class="mark">GC</div>
+          GCScript Studio <span style="color: var(--muted); font-weight: 500">for Docs</span>
+        </div>
+        <div>
+          <a
+            class="small-link"
+            href="https://github.com/GameChangerFinance/gcscript-studio"
+            target="_blank"
+            rel="noopener"
+            >GitHub repository ↗</a
+          >
+          &nbsp;
+          <button
+            id="theme"
+            style="
+              border: 1px solid var(--edge);
+              background: transparent;
+              color: var(--text);
+              border-radius: 8px;
+              padding: 7px 10px;
+              cursor: pointer;
+            "
+          >
+            ◐ Theme
+          </button>
+        </div>
+      </header>
+      <section class="intro">
+        <div class="kicker">GCScript Studio · Embed showcase</div>
+        <h1>One language.<br /><span>Three ways to build.</span></h1>
+        <p class="lead">
+          Explore real GCScript examples in three live, fully embedded Studio workspaces. Inspect
+          code, explore program structure as nodes, or compose programs with blocks — on the same
+          page.
+        </p>
+        <div class="specs">
+          <span class="chip">3 live IDEs</span><span class="chip">Official examples</span
+          ><span class="chip">Code · Nodes · Blocks</span
+          ><span class="chip">MIT licensed Studio</span>
+        </div>
+      </section>
+      <div class="sectionhead">
+        <h3>Interactive workspaces</h3>
+        <span class="aside">Hosted Studio · Requires internet</span>
+      </div>
+      <main class="gallery">
+        <article class="panel" data-panel="01">
+          <div class="panel-head">
+            <div class="index">01</div>
+            <div class="panel-title">
+              <div class="eyebrow">Wallet identity &amp; data</div>
+              <h2>Simple Export</h2>
+            </div>
+            <div class="view-badge">CODE VIEW</div>
+          </div>
+          <p class="description">
+            Read wallet name, addresses, public keys and export named results.
+          </p>
+          <div class="frame-wrap">
+            <iframe
+              title="GCScript Studio — Simple Export"
+              data-src="https://gamechangerfinance.github.io/gcscript-studio/api/2/edit/1-H4sIAAAAAAAC_4WQTWrDMBCFrzJok40pTbrrLpSuCiXgEyjWNBZRJCGNkpjgu3f0k1BDIRtZfvNpZt67CZo8incRh6A9iU6QJpOFXp-8Qfi8eheyrrAi2lmuVjkCjQgXaQwSWHnCrghDCgEtgVQqYIxVjB6t0vYA0iqIJI_57tPe6AGOOMWi0xgQQUmSMDjLlOUZySoMICHyC94Iy-gyTsGqDl-9QD-6SwQ-GrCNEJBSsHVJXiQZbuZ-cqfiBMiVkpLes8H7M3ZXm7IWEpu9iTwrf1tWB6TvrMydaBaXxY_qf9tqjBXzu7T_wmmJ9i2VXQkilzPN6eC_dI1tAeOVglz_4XJ6vPpZmnT_za5fH_DmObx-wG_P4Y2Y5_kXaZEgRUkCAAA?embed=true&amp;view=code"
+              loading="eager"
+              allow="clipboard-read; clipboard-write"
+              referrerpolicy="strict-origin-when-cross-origin"
+            ></iframe>
+          </div>
+          <footer>
+            <a
+              href="https://github.com/GameChangerFinance/gamechanger.wallet/blob/main/examples/Simple%20Export.gcscript"
+              target="_blank"
+              rel="noopener"
+              >Source example ↗</a
+            ><a
+              href="https://gamechangerfinance.github.io/gcscript-studio/api/2/edit/1-H4sIAAAAAAAC_4WQTWrDMBCFrzJok40pTbrrLpSuCiXgEyjWNBZRJCGNkpjgu3f0k1BDIRtZfvNpZt67CZo8incRh6A9iU6QJpOFXp-8Qfi8eheyrrAi2lmuVjkCjQgXaQwSWHnCrghDCgEtgVQqYIxVjB6t0vYA0iqIJI_57tPe6AGOOMWi0xgQQUmSMDjLlOUZySoMICHyC94Iy-gyTsGqDl-9QD-6SwQ-GrCNEJBSsHVJXiQZbuZ-cqfiBMiVkpLes8H7M3ZXm7IWEpu9iTwrf1tWB6TvrMydaBaXxY_qf9tqjBXzu7T_wmmJ9i2VXQkilzPN6eC_dI1tAeOVglz_4XJ6vPpZmnT_za5fH_DmObx-wG_P4Y2Y5_kXaZEgRUkCAAA?view=code"
+              target="_blank"
+              rel="noopener"
+              >Open full IDE ↗</a
+            >
+          </footer>
+        </article>
+        <article class="panel" data-panel="02">
+          <div class="panel-head">
+            <div class="index">02</div>
+            <div class="panel-title">
+              <div class="eyebrow">Build · sign · submit</div>
+              <h2>Minimal Coin Sending Demo</h2>
+            </div>
+            <div class="view-badge">NODE VIEW</div>
+          </div>
+          <p class="description">
+            Explore the transaction pipeline and its ordered scopes and nested steps.
+          </p>
+          <div class="frame-wrap">
+            <iframe
+              title="GCScript Studio — Minimal Coin Sending Demo"
+              data-src="https://gamechangerfinance.github.io/gcscript-studio/api/2/edit/1-H4sIAAAAAAAC_1VTTW_aQBT8K0--OJUAEVpA5BYlh3BoFbXcqhyevc_2lvWuvR9gB_Hf-9aGhOADaD0zb2beckp831DykLjcysYnk8RLr-LBT6lljQqejNTwh7SQuoRnqg1jBI1waTQjt9p5QgGmgOAiak_99IAqENTYOCiMBSWdj4BMmXwPuRE0gYoswZGYRIDWYu8AtQAd6owsSC2oIzdhjX0UjRxQ5Bw4UgVQ1yjU6I3tIQse6pBX4NiwIjuDXUWQmuCb4F0KjTUNWd9HAz6-yYJUYtel8Pi6hSLoPCYB5pqjg94E8AYEFVJzgqC8nKJz5MFb1A5H8EV8BlsNT2gFagMDikNwrJEtIOsBoTFK5v1WDPFQj7hfWHMHsZvH58drDSkKTDk6ZMZXkKMjnvCbcpIHspOROKi0ATVvqh-GcRfG8TDkrhUywJahJs1WnBnmBW-mJWmy6BkmsGlYW4OwLBsbqXmnTHLJwylhKAphuWhebfx1324KxLrd7FfL5bo80Pcl1l60TbXZVJt24bvqfb7OK-zKVTgeS7H6tzrMi3z-Qy-pKhebRd8dHH8dyNm2rbu20M26D0e97tv8PbRHy-PHjqZSDFMxGophp5prmlbUfRxfk_PB_Xz4JOdJYgPfxL-n622-LDhe5y6GumxrgHymO5Xk79IYfPaZOv12vg4f8dftfSV8-L3Bx5W-DFZvgF9jjOibDDfI62nEnN_4OU8-AjlZ6l3nhv-eR6lIvJKtpXN8F9lmgcpRDBstXzRzzCuazWe-exnnvt3qhayWflQcWF9I9xcL_wEFb_wJHgQAAA?embed=true&amp;view=node"
+              loading="eager"
+              allow="clipboard-read; clipboard-write"
+              referrerpolicy="strict-origin-when-cross-origin"
+            ></iframe>
+          </div>
+          <footer>
+            <a
+              href="https://github.com/GameChangerFinance/gamechanger.wallet/blob/main/examples/Minimal%20Coin%20Sending%20Demo.gcscript"
+              target="_blank"
+              rel="noopener"
+              >Source example ↗</a
+            ><a
+              href="https://gamechangerfinance.github.io/gcscript-studio/api/2/edit/1-H4sIAAAAAAAC_1VTTW_aQBT8K0--OJUAEVpA5BYlh3BoFbXcqhyevc_2lvWuvR9gB_Hf-9aGhOADaD0zb2beckp831DykLjcysYnk8RLr-LBT6lljQqejNTwh7SQuoRnqg1jBI1waTQjt9p5QgGmgOAiak_99IAqENTYOCiMBSWdj4BMmXwPuRE0gYoswZGYRIDWYu8AtQAd6owsSC2oIzdhjX0UjRxQ5Bw4UgVQ1yjU6I3tIQse6pBX4NiwIjuDXUWQmuCb4F0KjTUNWd9HAz6-yYJUYtel8Pi6hSLoPCYB5pqjg94E8AYEFVJzgqC8nKJz5MFb1A5H8EV8BlsNT2gFagMDikNwrJEtIOsBoTFK5v1WDPFQj7hfWHMHsZvH58drDSkKTDk6ZMZXkKMjnvCbcpIHspOROKi0ATVvqh-GcRfG8TDkrhUywJahJs1WnBnmBW-mJWmy6BkmsGlYW4OwLBsbqXmnTHLJwylhKAphuWhebfx1324KxLrd7FfL5bo80Pcl1l60TbXZVJt24bvqfb7OK-zKVTgeS7H6tzrMi3z-Qy-pKhebRd8dHH8dyNm2rbu20M26D0e97tv8PbRHy-PHjqZSDFMxGophp5prmlbUfRxfk_PB_Xz4JOdJYgPfxL-n622-LDhe5y6GumxrgHymO5Xk79IYfPaZOv12vg4f8dftfSV8-L3Bx5W-DFZvgF9jjOibDDfI62nEnN_4OU8-AjlZ6l3nhv-eR6lIvJKtpXN8F9lmgcpRDBstXzRzzCuazWe-exnnvt3qhayWflQcWF9I9xcL_wEFb_wJHgQAAA?view=node"
+              target="_blank"
+              rel="noopener"
+              >Open full IDE ↗</a
+            >
+          </footer>
+        </article>
+        <article class="panel" data-panel="03">
+          <div class="panel-head">
+            <div class="index">03</div>
+            <div class="panel-title">
+              <div class="eyebrow">Ordered values</div>
+              <h2>Simple Script No Export</h2>
+            </div>
+            <div class="view-badge">BLOCK VIEW</div>
+          </div>
+          <p class="description">
+            A compact script demonstrating ordered data execution in the Blocks workspace.
+          </p>
+          <div class="frame-wrap">
+            <iframe
+              title="GCScript Studio — Simple Script No Export"
+              data-src="https://gamechangerfinance.github.io/gcscript-studio/api/2/edit/1-H4sIAAAAAAAC_6tWKqksSFWyUipOLsosKFHSUSoqzVOyiq6GiackliQCRcsSc0phXIX8NAUDpVodQmoMiVBjpFQbWwsAPU8x9YUAAAA?embed=true&amp;view=block"
+              loading="eager"
+              allow="clipboard-read; clipboard-write"
+              referrerpolicy="strict-origin-when-cross-origin"
+            ></iframe>
+          </div>
+          <footer>
+            <a
+              href="https://github.com/GameChangerFinance/gamechanger.wallet/blob/main/examples/Simple%20Script%20No%20Export.gcscript"
+              target="_blank"
+              rel="noopener"
+              >Source example ↗</a
+            ><a
+              href="https://gamechangerfinance.github.io/gcscript-studio/api/2/edit/1-H4sIAAAAAAAC_6tWKqksSFWyUipOLsosKFHSUSoqzVOyiq6GiackliQCRcsSc0phXIX8NAUDpVodQmoMiVBjpFQbWwsAPU8x9YUAAAA?view=block"
+              target="_blank"
+              rel="noopener"
+              >Open full IDE ↗</a
+            >
+          </footer>
+        </article>
+      </main>
+      <p class="footnote">
+        This page is a standalone HTML document with no JavaScript framework or build step. The IDEs
+        load only from the allowlisted official Studio edit endpoint. Frames are separate editor
+        views, not a security boundary for same-origin content. Nested galleries do not load child
+        editors. Running wallet transactions requires explicit wallet interaction. Each embedded
+        editor starts with its own selected official example; embedded Studio sessions may share
+        browser storage as documented by the Studio project. For a custom deployment, update the IDE
+        base, iframe links and CSP frame-src together. Wallet popups and browser storage must be
+        allowed; the parent page does not handle wallet results.
+      </p>
+    </div>
+    <script>
+      (() => {
+        // The parent only loads fixed editor frames and switches the gallery theme; wallet capture belongs to Studio.
+        if (window.top !== window.self) {
+          const message = document.createElement('p');
+          message.setAttribute('role', 'alert');
+          message.textContent =
+            'Nested galleries are disabled. Open this example as a top-level page.';
+          document.body.replaceChildren(message);
+          return;
+        }
+        const ideBase = new URL('https://gamechangerfinance.github.io/gcscript-studio/');
+        const editPath = ideBase.pathname + 'api/2/edit/';
+        for (const frame of document.querySelectorAll('iframe[data-src]')) {
+          const url = new URL(frame.dataset.src);
+          if (
+            url.origin !== ideBase.origin ||
+            !url.pathname.startsWith(editPath) ||
+            !/^[\w-]+$/.test(url.pathname.slice(editPath.length)) ||
+            url.searchParams.get('embed') !== 'true' ||
+            !['code', 'node', 'block'].includes(url.searchParams.get('view'))
+          ) {
+            frame.replaceWith(document.createTextNode('Blocked an unexpected IDE URL.'));
+            continue;
+          }
+          frame.src = url.href;
+        }
+        document
+          .getElementById('theme')
+          .addEventListener('click', () => document.body.classList.toggle('light'));
+      })();
+    </script>
+  </body>
+</html>

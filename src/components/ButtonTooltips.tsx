@@ -60,14 +60,14 @@ export function ButtonTooltips({ delay, enabled = true }: { delay: number; enabl
     document.addEventListener('pointerover', show);
     document.addEventListener('focusin', show);
     document.addEventListener('pointerdown', hide);
-    document.addEventListener('keydown', hide);
+    document.addEventListener('keydown', hide, true);
     document.addEventListener('focusout', hide);
     return () => {
       hide();
       document.removeEventListener('pointerover', show);
       document.removeEventListener('focusin', show);
       document.removeEventListener('pointerdown', hide);
-      document.removeEventListener('keydown', hide);
+      document.removeEventListener('keydown', hide, true);
       document.removeEventListener('focusout', hide);
     };
   }, [delay, enabled]);

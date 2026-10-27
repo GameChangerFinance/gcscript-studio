@@ -1,0 +1,3 @@
+/examples/gcscript-studio-three-ides.html
+  X-Frame-Options: DENY
+  Content-Security-Policy: frame-ancestors 'none'

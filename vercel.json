@@ -5,6 +5,14 @@
   "outputDirectory": "dist",
   "routes": [
     {
+      "src": "/examples/gcscript-studio-three-ides\\.html",
+      "headers": {
+        "X-Frame-Options": "DENY",
+        "Content-Security-Policy": "frame-ancestors 'none'"
+      },
+      "continue": true
+    },
+    {
       "handle": "filesystem"
     },
     {

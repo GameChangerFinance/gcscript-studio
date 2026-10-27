@@ -33,6 +33,11 @@ Monaco's API does not register hover, completion, find or quick-fix UI automatic
 `adapters/monaco/features.ts` explicitly loads those contributions. Preserve them when
 changing entrypoints. The tooltip preference defaults on and controls Code, Nodes, Blocks and button help. A single contextual Monaco hover provider renders Markdown and uses the same ISL token spans as the highlighter.
 
+The toolbar tooltip button changes the same `codeTooltips` option immediately,
+without schema reload. Escape dismisses documentation and control help independently
+of focus. Monaco overflow widgets live in a document-level container with Monaco's
+theme context so pane clipping does not truncate code help.
+
 ## Wallet
 
 `refAddress` is an optional Cardano address for referral programs, as documented by GC 1.2.4. It defaults empty; Studio never inserts its own URL as `ref`.

@@ -4,6 +4,7 @@ import type { JsonValue } from '../json.js';
 import { isJsonValue, isRecord } from '../json.js';
 import type { Project, VirtualFile } from './vfs.js';
 import { parseProject, path } from './vfs.js';
+import { walletCallbackContext } from '../wallet/index.js';
 
 /** Lossless file transport; plain GCScript JSON and exported Studio projects need no envelope. */
 export interface EditFilePayload {
@@ -33,8 +34,9 @@ export function readStudioLaunch(
   const view = url.searchParams.get('view');
   return {
     embedded:
-      url.searchParams.has('embed') &&
-      ['', 'true', '1'].includes(url.searchParams.get('embed') ?? ''),
+      (url.searchParams.has('embed') &&
+        ['', 'true', '1'].includes(url.searchParams.get('embed') ?? '')) ||
+      walletCallbackContext(url).embedded,
     mode:
       view === 'code'
         ? 'code'

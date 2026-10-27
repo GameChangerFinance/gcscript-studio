@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import type { FrameLocator } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import gc from '@gamechanger-finance/gc/dist/browser.js';
 
@@ -38,6 +39,34 @@ async function normalProject(page: import('@playwright/test').Page) {
     .poll(() => page.evaluate(() => localStorage.getItem('gcscript-studio:project')))
     .toContain('Keep normal project');
   return page.evaluate(() => localStorage.getItem('gcscript-studio:project'));
+}
+
+/** Check compact controls and full use of remaining space, independent of platform font metrics. */
+async function expectCompactEmbeddedLayout(frame: FrameLocator): Promise<void> {
+  const geometry = await frame.locator('body').evaluate(async (body) => {
+    await document.fonts.ready;
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    const editor = body.querySelector('.editor-container')!.getBoundingClientRect();
+    const toolbar = body.querySelector('.topbar')!.getBoundingClientRect();
+    const tabs = body.querySelector('.tabbar')!.getBoundingClientRect();
+    const status = body.querySelector('.statusbar')!.getBoundingClientRect();
+    return {
+      width: innerWidth,
+      height: innerHeight,
+      scroll: Math.max(body.scrollWidth, document.documentElement.scrollWidth),
+      editor: { height: editor.height, top: editor.top, bottom: editor.bottom },
+      toolbar: toolbar.height,
+      tabsBottom: tabs.bottom,
+      status: { top: status.top, bottom: status.bottom },
+    };
+  });
+  expect(geometry.scroll).toBeLessThanOrEqual(geometry.width);
+  expect(geometry.toolbar).toBeLessThanOrEqual(50);
+  // At least three quarters of the iframe remains editable, including with wrapped status text.
+  expect(geometry.editor.height / geometry.height).toBeGreaterThanOrEqual(0.75);
+  expect(Math.abs(geometry.editor.top - geometry.tabsBottom)).toBeLessThanOrEqual(1);
+  expect(Math.abs(geometry.editor.bottom - geometry.status.top)).toBeLessThanOrEqual(1);
+  expect(Math.abs(geometry.status.bottom - geometry.height)).toBeLessThanOrEqual(1);
 }
 test('embedded source import preserves JSONC and normal storage; generated links preserve source', async ({
   page,
@@ -157,13 +186,7 @@ test('iframe uses the requested block and node views with compact geometry and f
         .first(),
     ).toBeVisible();
     await expect(frame.getByRole('dialog')).toHaveCount(0);
-    const geometry = await frame.locator('body').evaluate((body) => ({
-      width: body.clientWidth,
-      scroll: body.scrollWidth,
-      editor: body.querySelector('.editor-container')!.getBoundingClientRect().height,
-    }));
-    expect(geometry.scroll).toBeLessThanOrEqual(geometry.width);
-    expect(geometry.editor).toBeGreaterThan(390);
+    await expectCompactEmbeddedLayout(frame);
     await page.screenshot({ path: '/tmp/studio-embed-' + view + '.png' });
     expect(
       await frame
@@ -174,17 +197,17 @@ test('iframe uses the requested block and node views with compact geometry and f
     ).toContain('empty');
   }
   await page.setViewportSize({ width: 360, height: 540 });
-  const mobile = await page
-    .frameLocator('iframe')
-    .locator('body')
-    .evaluate((body) => ({
-      width: body.clientWidth,
-      scroll: body.scrollWidth,
-      editor: body.querySelector('.editor-container')!.getBoundingClientRect().height,
-      toolbar: body.querySelector('.topbar')!.getBoundingClientRect().height,
-    }));
-  expect(mobile.scroll).toBeLessThanOrEqual(mobile.width);
-  expect(mobile.toolbar).toBeLessThanOrEqual(50);
-  expect(mobile.editor).toBeGreaterThan(390);
+  const mobile = page.frameLocator('iframe');
+  await expectCompactEmbeddedLayout(mobile);
+  // CI fonts can wrap the status message; exercise that layout explicitly on every platform.
+  const wrappedStatus = await mobile.locator('.statusbar [role="status"]').evaluate((status) => {
+    status.textContent = 'Project imported into the embedded workspace and ready to edit.';
+    return {
+      height: status.getBoundingClientRect().height,
+      lineHeight: parseFloat(getComputedStyle(status).lineHeight),
+    };
+  });
+  expect(wrappedStatus.height).toBeGreaterThan(wrappedStatus.lineHeight);
+  await expectCompactEmbeddedLayout(mobile);
   await page.screenshot({ path: '/tmp/studio-embed-mobile.png' });
 });

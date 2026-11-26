@@ -74,7 +74,9 @@ ISL evaluation is recognized only where the resolved field schema explicitly ref
 
 The schema cache expires after 24 hours (matching GC CLI) and is keyed by full URL and separate from editable project state. It coalesces loads, repairs invalid entries, rejects HTTP failures, supports retry, and prevents an old request from overwriting a refreshed response. The Options decoration refreshes the schema and extras together.
 
-Persisted sessions have one version gate. Mismatches pause autosave, preserve the saved payload and offer explicit backup/reset actions. Build, import and generation operations compare project identity/revision before committing. Wallet run records bind results to project identity and a destination path; a callback from an earlier project cannot write into a different project.
+The package release version and persisted workspace format are independent.
+`StudioConfig.version` gates the workspace/project format, currently `0.1.0`;
+compatible application releases retain it. Persisted sessions have one version gate. Mismatches pause autosave, preserve the saved payload and offer explicit backup/reset actions. Build, import and generation operations compare project identity/revision before committing. Wallet run records bind results to project identity and a destination path; a callback from an earlier project cannot write into a different project.
 
 `core/project/edit-link.ts` owns edit-link payload contracts, validation and URL flags.
 The browser codec adapter delegates to `gc.encode.url` and `gc.encodings.msg.decoder`.
@@ -90,6 +92,6 @@ Documentation display has independent depth/node/character budgets and sanitizes
 
 ## Verification scope
 
-Unit tests exercise data contracts and failures. Integration tests consume the actual installed GC browser bundle with official full schemas, project builds, validation, archives and snippet generation. Browser tests exercise real Monaco, Blockly, Rete, cache refresh, direct popup launches and a simulated return endpoint. A separate core build supports Node consumers. Host-specific deployment permissions and a real signing/submission session remain destination-environment checks.
+Unit tests exercise data contracts and failures. Integration tests consume the actual installed GC browser bundle with official full schemas, project builds, validation, archives and dapp generation. Browser tests exercise real Monaco, Blockly, Rete, cache refresh, direct popup launches and a simulated return endpoint. A separate core build supports Node consumers. Host-specific deployment permissions and a real signing/submission session remain destination-environment checks.
 
 The live official schema was checked on 2026-10-26 and matched the isolated test fixture. The GC build-stage behavior was verified against the installed official `@gamechanger-finance/gc` 1.2.4 implementation and its public declarations.

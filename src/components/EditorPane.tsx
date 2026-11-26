@@ -267,10 +267,12 @@ export function EditorPane({
             onChange={(e) => setQuery(e.target.value)}
           />
           <button
-            data-tooltip="Fit all blocks in the workspace"
+            aria-label="Fit blocks"
+            data-tooltip="Scale and center all blocks in the visible workspace"
             onClick={() => blocks.current?.fit()}
           >
-            Fit
+            <i aria-hidden="true" className="bi bi-arrows-fullscreen me-1" />
+            Fit blocks
           </button>
           <button
             data-tooltip="Collapse all code blocks"

@@ -1,3 +1,4 @@
+import { DEFAULT_CONFIG } from '../../config.js';
 import type { StudioConfig } from '../../config.js';
 import { isRecord } from '../json.js';
 export interface VirtualFile {
@@ -208,7 +209,11 @@ export function createProject(config: StudioConfig, id: string): Project {
   };
 }
 /** Validate imported/persisted projects before exposing them to editor or filesystem operations. */
-export function parseProject(value: unknown, version: string): Project {
+export function parseProject(
+  value: unknown,
+  version: string,
+  maxEntries = DEFAULT_CONFIG.limits.projectEntries,
+): Project {
   if (!isRecord(value) || value.version !== version)
     throw Error('Saved project version differs. Export a backup, then reset this project.');
   if (
@@ -221,6 +226,8 @@ export function parseProject(value: unknown, version: string): Project {
     typeof value.active !== 'string'
   )
     throw Error('Invalid project data');
+  if (Object.keys(value.files).length + value.dirs.length > maxEntries)
+    throw Error('Project exceeds the configured file/directory count limit');
   let result: Project = {
     version,
     id: value.id,

@@ -93,11 +93,11 @@ test('rich ISL help, opaque menus, global tooltip preference and editor toolbar'
     'Built strict JSON',
     'IDE file link',
     'IDE project link',
-    'html snippet',
-    'html-zero snippet',
-    'react snippet',
-    'button snippet',
-    'express snippet',
+    'HTML + JavaScript dapp',
+    'HTML + JavaScript dapp (zero dependencies)',
+    'React dapp',
+    'Button dapp',
+    'Express dapp',
     'Import wallet result',
   ]);
   await expect(page.locator('.studio-menu[open] hr')).toHaveCount(2);

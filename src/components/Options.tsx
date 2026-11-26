@@ -174,8 +174,11 @@ export function Options({
             value={draft.network}
             onChange={(e) => set('network', e.target.value === 'mainnet' ? 'mainnet' : 'preprod')}
           >
-            <option value="preprod">Preprod</option>
-            <option value="mainnet">Mainnet</option>
+            {controller.config.networks.map((network) => (
+              <option key={network.tag} value={network.tag}>
+                {network.dltLabel} {network.label}
+              </option>
+            ))}
           </select>
         </div>
         <div className="col-sm-6">

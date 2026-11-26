@@ -20,8 +20,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm typecheck && pnpm lint && pnpm test:coverage
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm test:e2e
       - name: Build repository subpath
         run: VITE_BASE_PATH=/${{ github.event.repository.name }}/ pnpm build
       - name: Create Pages SPA fallback

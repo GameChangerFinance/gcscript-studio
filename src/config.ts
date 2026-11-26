@@ -54,6 +54,7 @@ export interface StudioConfig {
     docNodes: number;
     docCharacters: number;
     archiveBytes: number;
+    projectEntries: number;
     logEntries: number;
   };
   timing: {
@@ -64,10 +65,20 @@ export interface StudioConfig {
     tooltipDelay: number;
     validationDebounce: number;
     validationInterval: number;
+    importTimeout: number;
   };
   layout: { left: number; right: number; code: number; mobileBreakpoint: number };
+  blockZoom: { startScale: number; minScale: number; maxScale: number };
   wallet: { popupFeatures: string; popupName: string; pendingMaxAge: number };
   project: { marker: string; initialFile: string; source: string };
+  networks: {
+    tag: StudioOptions['network'];
+    dltTag: string;
+    dltLabel: string;
+    label: string;
+    production: boolean;
+  }[];
+  dappLabels: Record<string, string>;
   snippets: string[];
   docsUrl: string;
 }
@@ -76,6 +87,7 @@ const FIXED_EDITOR_OPTIONS = { autosave: true, syntaxHighlighting: true, debugMo
 
 /** Defaults are cloned on load: editor changes never mutate shared configuration. */
 export const DEFAULT_CONFIG: StudioConfig = {
+  // Persisted workspace format; independent of the package release version.
   version: '0.1.0',
   fixedEditorOptions: FIXED_EDITOR_OPTIONS,
   defaults: {
@@ -156,6 +168,7 @@ export const DEFAULT_CONFIG: StudioConfig = {
     docNodes: 100,
     docCharacters: 28000,
     archiveBytes: 64 * 1024 * 1024,
+    projectEntries: 5000,
     logEntries: 70,
   },
   timing: {
@@ -166,8 +179,10 @@ export const DEFAULT_CONFIG: StudioConfig = {
     tooltipDelay: 350,
     validationDebounce: 900,
     validationInterval: 15000,
+    importTimeout: 15000,
   },
   layout: { left: 266, right: 310, code: 50, mobileBreakpoint: 850 },
+  blockZoom: { startScale: 0.82, minScale: 0.05, maxScale: 1.8 },
   wallet: {
     popupName: 'gcscript_studio_wallet',
     popupFeatures: 'popup=yes,width=550,height=780',
@@ -178,6 +193,23 @@ export const DEFAULT_CONFIG: StudioConfig = {
     initialFile: 'main.gcscript',
     source:
       '{\n  "type": "script",\n  "title": "My GCScript project",\n  "exportAs": "myExports",\n  "run": {\n    // Named steps execute in source order.\n    "myAddress": { "type": "getCurrentAddress" }\n  }\n}\n',
+  },
+  networks: [
+    { tag: 'mainnet', dltTag: 'cardano', dltLabel: 'Cardano', label: 'Mainnet', production: true },
+    {
+      tag: 'preprod',
+      dltTag: 'cardano',
+      dltLabel: 'Cardano',
+      label: 'Pre-Production Testnet',
+      production: false,
+    },
+  ],
+  dappLabels: {
+    html: 'HTML + JavaScript dapp',
+    'html-zero': 'HTML + JavaScript dapp (zero dependencies)',
+    react: 'React dapp',
+    button: 'Button dapp',
+    express: 'Express dapp',
   },
   snippets: ['url', 'qr', 'urlQueryParams', 'html', 'html-zero', 'react', 'button', 'express'],
   docsUrl: 'https://wallet.gamechanger.finance/doc/api/v2/',

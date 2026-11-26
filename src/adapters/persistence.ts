@@ -43,7 +43,7 @@ export function restoreSession(
         );
       data.options = saved.options;
     }
-    const project = parseProject(data.project, config.version);
+    const project = parseProject(data.project, config.version, config.limits.projectEntries);
     const options = { ...config.defaults };
     if (isRecord(data.options))
       for (const key of Object.keys(options) as (keyof StudioOptions)[]) {

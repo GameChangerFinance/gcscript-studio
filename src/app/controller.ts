@@ -33,6 +33,7 @@ import {
 import { restoreSession, persistSession, sessionConfig } from '../adapters/persistence';
 import { decodeEditLink, encodeEditLink } from '../adapters/edit-links';
 import { readStudioLaunch } from '../core/project/edit-link';
+import { readImportSource } from '../adapters/import-source';
 import type { EditFilePayload, LinkView } from '../core/project/edit-link';
 import { consumeReturns, decodeResult, registerRun } from '../adapters/wallet/bridge';
 import { createCorrelationId } from '../adapters/identifiers';
@@ -57,6 +58,7 @@ export interface StudioController {
   closeProject(): Promise<void>;
   importProjectFile(file: File): Promise<void>;
   importEditLink(href: string): Promise<void>;
+  importSource(source: string): Promise<void>;
   exportFile(): void;
   mutateProject(operation: (project: Project) => Project): boolean;
   moveEntry(
@@ -588,18 +590,18 @@ export function createStudioController(config: StudioConfig): StudioController {
           notify('URL parameters generated');
           return { title: 'URL parameters', value: String(value), image: false };
         }
-        if (!(kind in gc.snippet)) throw Error('Unsupported snippet format: ' + kind);
+        if (!Object.hasOwn(gc.snippet, kind)) throw Error('Unsupported dapp format: ' + kind);
         const handler = gc.snippet[kind as keyof typeof gc.snippet];
         const output = await handler(params);
         assertCurrent(project);
         const text = output.startsWith('data:') ? dataURIText(output) : output;
         download(
-          kind + '-snippet.' + (kind === 'express' ? 'js' : kind === 'react' ? 'html' : 'html'),
+          kind + '-dapp.' + (kind === 'express' ? 'js' : kind === 'react' ? 'html' : 'html'),
           text,
           'text/plain',
           config.timing.downloadRevoke,
         );
-        notify('Snippet downloaded');
+        notify('Dapp downloaded');
         return null;
       } catch (error) {
         notify('Generation: ' + errorMessage(error), true);
@@ -659,6 +661,26 @@ export function createStudioController(config: StudioConfig): StudioController {
         notify('Open in IDE: ' + errorMessage(error), true);
       }
     },
+    async importSource(source) {
+      const snapshot = store.getSnapshot().project;
+      try {
+        if (importing) throw Error('Finish the current import first.');
+        const imported = await readImportSource(source, config);
+        assertCurrent(snapshot);
+        if (imported.kind === 'project')
+          await controller.importProjectFile(
+            new File([JSON.stringify(imported.project)], 'project.json'),
+          );
+        else if (imported.kind === 'file')
+          await controller.importFiles([
+            new File([Uint8Array.from(fileBytes(imported.file)).buffer], imported.path),
+          ]);
+        else await controller.importFiles([imported.file]);
+      } catch (error) {
+        notify('Import: ' + errorMessage(error), true);
+        throw error;
+      }
+    },
     async importProjectFile(file) {
       if (importing) {
         notify('Finish the current import first.', true);
@@ -667,7 +689,13 @@ export function createStudioController(config: StudioConfig): StudioController {
       importing = true;
       const snapshot = store.getSnapshot().project;
       try {
-        const project = parseProject(JSON.parse(await file.text()), config.version);
+        if (file.size > config.limits.archiveBytes)
+          throw Error('Import exceeds the configured size limit');
+        const project = parseProject(
+          JSON.parse(await file.text()),
+          config.version,
+          config.limits.projectEntries,
+        );
         if (!(await saveBeforeOpening())) return;
         assertCurrent(snapshot);
         openProject({ ...project, id: createCorrelationId() });
@@ -685,6 +713,10 @@ export function createStudioController(config: StudioConfig): StudioController {
       }
       const list = Array.from(files);
       if (!list.length) return;
+      if (list.some((file) => file.size > config.limits.archiveBytes)) {
+        notify('Import exceeds the configured size limit', true);
+        return;
+      }
       if (list.length === 1 && /\.json$/i.test(list[0]!.name)) {
         try {
           const value: unknown = JSON.parse(await list[0]!.text());
@@ -707,7 +739,11 @@ export function createStudioController(config: StudioConfig): StudioController {
       importing = true;
       const snapshot = store.getSnapshot().project;
       try {
-        const imported = await readImports(list);
+        const imported = await readImports(
+          list,
+          config.limits.archiveBytes,
+          config.limits.projectEntries,
+        );
         assertCurrent(snapshot);
         const archive = list.some((file) => /\.(zip|tar\.gz|tgz)$/i.test(file.name));
         const choice =

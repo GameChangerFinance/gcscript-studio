@@ -74,7 +74,10 @@ export function parseEditImport(value: unknown, config: StudioConfig): EditImpor
     };
   }
   if (isRecord(value) && Object.hasOwn(value, 'files') && Object.hasOwn(value, 'version'))
-    return { kind: 'project', project: parseProject(value, config.version) };
+    return {
+      kind: 'project',
+      project: parseProject(value, config.version, config.limits.projectEntries),
+    };
   if (!isJsonValue(value)) throw Error('IDE link must contain a file, project or JSON value');
   return {
     kind: 'file',

@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { File as NodeFile } from 'node:buffer';
 import { gc } from '../../src/adapters/gc';
 import { DEFAULT_CONFIG } from '../../src/config';
 import { createStudioController } from '../../src/app/controller';
@@ -44,6 +45,35 @@ const deferred = <T>() => {
   });
   return { promise, resolve: (value: T) => resolve?.(value) };
 };
+describe('URL and payload import lifecycle', () => {
+  it('retains manual import choices in embedded mode and never auto-replaces the workspace', async () => {
+    vi.stubGlobal('File', NodeFile);
+    window.history.replaceState(null, '', '/?embed=true');
+    const app = await ready();
+    const before = app.store.getSnapshot().project;
+    const opening = app.importSource('{"type":"script","title":"Manual import","run":{}}');
+    await vi.waitFor(() => expect(app.store.getSnapshot().prompt?.title).toContain('Import'));
+    app.answerPrompt('cancel');
+    await opening;
+    expect(app.store.getSnapshot().project).toBe(before);
+  });
+  it('discards stale URL responses after source editing and preserves the active project', async () => {
+    const app = await ready();
+    const pending = deferred<Response>();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => pending.promise),
+    );
+    const opening = app.importSource('https://docs.test/new.gcscript');
+    const key = app.store.getSnapshot().project.active;
+    app.editFile('{"type":"script","title":"Keep new work","run":{}}', key);
+    const before = app.store.getSnapshot().project;
+    pending.resolve(new Response('{"type":"script","title":"Old request","run":{}}'));
+    await expect(opening).rejects.toThrow(/changed/i);
+    expect(app.store.getSnapshot().project).toBe(before);
+    expect(app.store.getSnapshot().prompt).toBeNull();
+  });
+});
 describe('controller safety and persistence', () => {
   it('auto-opens embedded links in isolated storage and returns wallets to that session', async () => {
     const normal = initialState(

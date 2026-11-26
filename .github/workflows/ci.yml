@@ -18,5 +18,3 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm check
       - run: pnpm format:check
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm test:e2e

@@ -38,7 +38,7 @@ the embeddable IDE. Keep the bootstrap CSP hash in sync when changing the HTML s
 
 ## GitHub Pages
 
-The Pages workflow runs on pushes to `main` and manual dispatch. It installs locked dependencies, runs checks and browser tests, builds with `/${repository-name}/`, copies a fallback shell to `404.html`, uploads the Pages artifact and deploys it. The repository must enable GitHub Actions as its Pages source. GitHub Pages may return HTTP 404 for an unknown route even when displaying the copied SPA shell; wallet callbacks use the real `index.html` and return HTTP 200.
+The Pages workflow runs on pushes to `main` and manual dispatch. It installs locked dependencies, runs typechecking, lint and coverage-gated unit/integration tests, builds with `/${repository-name}/`, copies a fallback shell to `404.html`, uploads the Pages artifact and deploys it. The repository must enable GitHub Actions as its Pages source. GitHub Pages may return HTTP 404 for an unknown route even when displaying the copied SPA shell; wallet callbacks use the real `index.html` and return HTTP 200.
 
 ## Apache
 

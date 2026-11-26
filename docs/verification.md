@@ -32,7 +32,7 @@ VITE_BASE_PATH=/gcscript-studio/ pnpm preview --port 4173
 PLAYWRIGHT_BASE_URL=http://127.0.0.1:4173/gcscript-studio/ pnpm test:e2e
 ```
 
-`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` can select an existing Chromium/Chrome installation. CI installs Playwright's Chromium instead.
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` can select an existing Chromium/Chrome installation. Playwright tests run locally only; GitHub Actions neither installs browsers nor runs `pnpm test:e2e`.
 
 For the focused editor checks:
 

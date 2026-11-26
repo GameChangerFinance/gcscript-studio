@@ -10,7 +10,7 @@ pnpm test:e2e
 pnpm format:check
 ```
 
-`pnpm check` runs strict typechecking, lint, coverage-gated unit/integration tests, and the production build. Browser tests exercise the real local editor bundles, the GC builder, visual adapters, cache refresh, popup return bridge, and responsive dialogs. They use a local schema fixture and an intercepted wallet endpoint; they do not sign or submit transactions.
+`pnpm check` runs strict typechecking, lint, coverage-gated unit/integration tests, and the production build. Playwright browser tests run locally only and are not part of GitHub Actions checks or Pages deployment. They exercise the real local editor bundles, the GC builder, visual adapters, cache refresh, popup return bridge, and responsive dialogs. They use a local schema fixture and an intercepted wallet endpoint; they do not sign or submit transactions.
 
 The core has enforced coverage thresholds. Changes to a shared module should include tests of observable contracts, relevant failure/retry paths, and real consumers. Do not replace meaningful assertions with snapshots of implementation details. Exercise both source authoring and built strict JSON when changing schema or build behavior.
 

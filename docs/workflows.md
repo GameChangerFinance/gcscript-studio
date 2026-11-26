@@ -9,6 +9,12 @@ projects require Save ZIP / continue without saving / cancel. Existing file conf
 require an explicit replacement choice. Decisions are bound to the starting project
 revision; edits while a dialog or fetch is pending invalidate the import.
 
+URL/payload inputs use the same flow. HTTP(S) downloads are bounded, timed and
+fetched without credentials, referrer or redirects. GC edit/run URLs are decoded
+as data; opening them never executes a wallet intent. Compressed imports validate
+expanded sizes before opening project contents. JSONC, HTML and SVG file contents
+remain source text, never live markup.
+
 GC-encoded `/api/2/edit/` links are decoded and validated before entering this flow.
 Normal links retain the same choices. Explicit embedded links replace only the
 isolated embedded workspace without prompting; manual imports still use the normal
@@ -42,7 +48,7 @@ theme context so pane clipping does not truncate code help.
 
 `refAddress` is an optional Cardano address for referral programs, as documented by GC 1.2.4. It defaults empty; Studio never inserts its own URL as `ref`.
 
-`walletParameters` is the canonical transport policy for Run, URLs, QR and snippets.
+`walletParameters` is the canonical transport policy for Run, URLs, QR and dapps.
 The default router produces `networkTag` from Options. Only `disableNetworkRouter`
 omits it. Run builds and encodes first, then opens the final URL directly. A blocked
 popup offers a prepared Open wallet link, without a blank/intermediate popup page.

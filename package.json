@@ -1,6 +1,6 @@
 {
   "name": "gcscript-studio",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Browser IDE for GCScript DSL and ISL for building in Cardano and other ecosystems: code, nodes, blocks, 100+ examples, multi-file builds, HTML+JS, React, Express dapp code generation. Run code in GameChanger Wallet or your wallet of choice. Edit and build locally. Embed and integrate with ease with iframes and links. No dependencies required.",

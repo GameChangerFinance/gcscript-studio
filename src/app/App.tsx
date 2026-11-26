@@ -14,10 +14,15 @@ import { Examples } from '../components/Examples';
 import { Documentation } from '../components/Documentation';
 import { ButtonTooltips } from '../components/ButtonTooltips';
 import { Modal } from '../components/Modal';
+import { FullscreenButton } from '../components/FullscreenButton';
+import { OpenProjectTab } from '../components/OpenProjectTab';
+import { ImportSources } from '../components/ImportSources';
 import { downloadURI, download } from '../adapters/files';
 export function App({ controller }: { controller: StudioController }) {
   const state = useSyncExternalStore(controller.store.subscribe, controller.store.getSnapshot);
-  const [dialog, setDialog] = useState<'options' | 'examples' | 'result' | null>(null),
+  const [dialog, setDialog] = useState<
+      'options' | 'examples' | 'result' | 'import-url' | 'import-payload' | null
+    >(null),
     [sidebarTab, setSidebarTab] = useState<'files' | 'functions'>('files'),
     [search, setSearch] = useState(''),
     [findRequest, setFindRequest] = useState(0);
@@ -29,6 +34,7 @@ export function App({ controller }: { controller: StudioController }) {
   const filesInput = useRef<HTMLInputElement>(null),
     folderInput = useRef<HTMLInputElement>(null),
     projectInput = useRef<HTMLInputElement>(null);
+  const network = controller.config.networks.find((item) => item.tag === state.options.network);
   const script =
     isGCScript(state.project.active) &&
     state.project.files[state.project.active]?.encoding === 'utf8';
@@ -176,6 +182,7 @@ export function App({ controller }: { controller: StudioController }) {
         >
           <i aria-hidden="true" className="bi bi-layout-sidebar-inset fs-5" />
         </button>
+        {state.embedded ? <OpenProjectTab controller={controller} state={state} /> : null}
         <div className="brand">
           <img
             className="brand-logo"
@@ -201,7 +208,7 @@ export function App({ controller }: { controller: StudioController }) {
             className="studio-menu embed-secondary"
             open={menu === 'import'}
             onClick={(e) => {
-              if ((e.target as Element).closest('button')) setMenu(null);
+              if ((e.target as Element).closest('button[data-close-menu]')) setMenu(null);
             }}
           >
             <summary
@@ -216,9 +223,23 @@ export function App({ controller }: { controller: StudioController }) {
               Import
             </summary>
             <div>
-              <button onClick={() => filesInput.current?.click()}>Files / ZIP / TAR.GZ</button>
-              <button onClick={() => folderInput.current?.click()}>Folder</button>
-              <button onClick={() => projectInput.current?.click()}>Saved project JSON</button>
+              <h2 className="menu-label">Local files and projects</h2>
+              <button data-close-menu onClick={() => filesInput.current?.click()}>
+                Files / ZIP / TAR.GZ
+              </button>
+              <button data-close-menu onClick={() => folderInput.current?.click()}>
+                Folder
+              </button>
+              <button data-close-menu onClick={() => projectInput.current?.click()}>
+                Saved project JSON
+              </button>
+              <hr />
+              <button data-close-menu onClick={() => setDialog('import-url')}>
+                Open from URL…
+              </button>
+              <button data-close-menu onClick={() => setDialog('import-payload')}>
+                Open from payload…
+              </button>
             </div>
           </details>
           <details
@@ -292,6 +313,7 @@ export function App({ controller }: { controller: StudioController }) {
               Output
             </summary>
             <div>
+              <h2 className="menu-label">Run and share</h2>
               {controller.config.snippets
                 .filter((kind) => ['url', 'qr', 'urlQueryParams'].includes(kind))
                 .map((kind) => (
@@ -311,6 +333,7 @@ export function App({ controller }: { controller: StudioController }) {
               </button>
               <button onClick={() => void generate('editProject')}>IDE project link</button>
               <hr />
+              <h2 className="menu-label">1-click dapp code generation</h2>
               {controller.config.snippets
                 .filter((kind) => !['url', 'qr', 'urlQueryParams'].includes(kind))
                 .map((kind) => (
@@ -319,10 +342,11 @@ export function App({ controller }: { controller: StudioController }) {
                     disabled={!script || !state.schema}
                     onClick={() => void generate(kind)}
                   >
-                    {kind} snippet
+                    {controller.config.dappLabels[kind] ?? kind + ' dapp'}
                   </button>
                 ))}
               <hr />
+              <h2 className="menu-label">Wallet results</h2>
               <button onClick={() => setDialog('result')}>Import wallet result</button>
             </div>
           </details>
@@ -333,6 +357,7 @@ export function App({ controller }: { controller: StudioController }) {
           >
             <i aria-hidden="true" className="bi bi-sliders" />
           </button>
+          <FullscreenButton controller={controller} />
           <button
             className="icon-btn"
             aria-label="Toggle inspector"
@@ -663,11 +688,60 @@ export function App({ controller }: { controller: StudioController }) {
           />
           {state.status.message}
         </span>
-        <span className="status-end">
-          {Object.keys(state.project.files).length} files ·{' '}
-          {state.schema?.catalog.functions.length ?? 0} functions · JSONC · Rete · Blockly
-        </span>
+        <details className="studio-menu network-menu" open={menu === 'network'}>
+          <summary
+            className={'network-toggle ' + (network?.production ? 'production' : 'testnet')}
+            role="button"
+            aria-label="Change network"
+            aria-expanded={menu === 'network'}
+            data-tooltip="Choose the target network for Run and generated dapps"
+            onClick={(event) => {
+              event.preventDefault();
+              setMenu(menu === 'network' ? null : 'network');
+            }}
+          >
+            <i aria-hidden="true" className="bi bi-globe2" />{' '}
+            <span className="network-dlt">{network?.dltLabel} </span>
+            {network?.label ?? state.options.network}
+            <i aria-hidden="true" className="bi bi-chevron-up ms-1" />
+          </summary>
+          <div>
+            <h2 className="menu-label">Target network</h2>
+            {controller.config.networks.map((network) => (
+              <button
+                key={network.tag}
+                disabled={state.status.busy}
+                aria-pressed={state.options.network === network.tag}
+                data-tooltip={network.dltTag + ' / ' + network.tag}
+                className={network.production ? 'production' : 'testnet'}
+                onClick={() => {
+                  controller.store.update((current) => ({
+                    ...current,
+                    options: { ...current.options, network: network.tag },
+                  }));
+                  setMenu(null);
+                }}
+              >
+                <i
+                  aria-hidden="true"
+                  className={
+                    'bi me-2 ' + (state.options.network === network.tag ? 'bi-check2' : 'bi-circle')
+                  }
+                />
+                <span className="network-dlt">{network.dltLabel} </span>
+                {network.label}
+              </button>
+            ))}
+          </div>
+        </details>
       </footer>
+      {dialog === 'import-url' || dialog === 'import-payload' ? (
+        <ImportSources
+          controller={controller}
+          kind={dialog === 'import-url' ? 'url' : 'payload'}
+          onClose={() => setDialog(null)}
+        />
+      ) : null}
       {dialog === 'options' ? (
         <Options controller={controller} initial={state.options} onClose={() => setDialog(null)} />
       ) : null}

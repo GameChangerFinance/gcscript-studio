@@ -2,6 +2,7 @@ import { gc } from './gc';
 import type { StudioConfig } from '../config';
 import type { EditImport, EditLinkPayload, LinkView } from '../core/project/edit-link';
 import { parseEditImport } from '../core/project/edit-link';
+import { inflateBounded } from './import-data';
 
 /** Use GC's URL/message codec unchanged; this endpoint opens source and never runs it. */
 export async function encodeEditLink(
@@ -46,6 +47,17 @@ export async function decodeEditLink(encoded: string, config: StudioConfig): Pro
     !/^[\w-]+$/.test(encoded)
   )
     throw Error('Invalid or oversized IDE link payload');
+  // Enforce the decoded-byte budget for gzip transport payloads.
+  if (encoded.startsWith('1-')) {
+    const bytes = Uint8Array.from(gc.utils.Buffer.from(encoded.slice(2), 'base64'));
+    try {
+      await inflateBounded(bytes, 'gzip', config.editLinks.maxDecodedBytes);
+    } catch (error) {
+      if (error instanceof RangeError)
+        throw Error('Decoded IDE link payload is invalid or too large');
+      throw error;
+    }
+  }
   const decoded: unknown = await gc.encodings.msg.decoder(encoded);
   const text = JSON.stringify(decoded);
   if (

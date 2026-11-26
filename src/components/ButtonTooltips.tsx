@@ -25,10 +25,11 @@ export function ButtonTooltips({ delay, enabled = true }: { delay: number; enabl
           .composedPath()
           .find(
             (item): item is Element =>
-              item instanceof Element && item.matches('button, summary, [role="button"]'),
+              item instanceof Element &&
+              item.matches('button, summary, a[aria-label], [role="button"]'),
           ) ??
         (event.target instanceof Element
-          ? event.target.closest('button, summary, [role="button"]')
+          ? event.target.closest('button, summary, a[aria-label], [role="button"]')
           : null);
       if (target === owner) return;
       hide();

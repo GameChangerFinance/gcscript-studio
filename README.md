@@ -36,8 +36,10 @@ Open the address printed by Vite. For a production build, use `pnpm build`, then
 - **Project builds.** Resolve local `app://` resources with the official GC builder, then validate the resulting strict JSON. Source files and build output stay separate.
 - **Language-aware authoring.** GCScript functions, ISL, build-stage extras, JSON values and user-defined entries have distinct, configurable colors. The block drawer follows their language origin and published ISL groups.
 - **Schemas-driven.** Swap the schema files and wallet URL and start coding for other ecosystems and tools beyond **Cardano**.
-- **Portable outputs.** Generate strict JSON, wallet URLs, QR images, URL transport data, and HTML, HTML Zero, React, button, or Express snippets.
+- **1-click dapp code generation.** Generate complete HTML + JavaScript, zero-dependency HTML, React, Button or Express dapps from the active script. The Output menu groups dapp generation separately from wallet URLs, QR images, URL parameters and IDE links. Built strict JSON is available too.
 - **Local control.** Dark/light themes, resizable panels, configurable paths, autosave, project JSON backups, and a version gate for incompatible saved state.
+
+See the [changelog](CHANGELOG.md) for release changes.
 
 ## A typical session
 
@@ -47,9 +49,15 @@ Open the address printed by Vite. For a production build, use `pnpm build`, then
 4. **Run** builds the active file and opens the wallet or runner of choice directly in a popup. Run writes its return callback into the active source file as an undoable edit. **Options → Run mode** also supports redirecting this window or displaying a QR code.
 5. Wallet exports return to `results/result.json` by default. **Merge wallet results** recursively merges named object exports, preserving other exports and replacing incoming arrays/scalars; turn it off to replace the entire result. Use **Output → Import wallet result** for manually copied exports or cross-device QR results.
 
+The bottom-right network selector changes the same setting as **Options → Network**. Labels include the ecosystem, such as **Cardano Mainnet** or **Cardano Pre-Production Testnet**; the amber testnet accent identifies a testing environment. Small screens hide the ecosystem prefix to leave more room for the network name. Changes apply immediately and persist locally.
+
 **Options → Network** controls the wallet `networkTag`. The network router is enabled by default to enforce it. Check **Disable network router** only when you want to use the wallet’s current network. Run opens the final wallet URL without a local intermediate page. If the browser blocks the popup after building, use the prepared **Open wallet** link. The wallet retains control over approvals, signing and submission. See the [official GC transport options](https://github.com/GameChangerFinance/gamechanger#usage).
 
 Text changes in Blocks preserve neighboring JSONC comments. Structural changes that require normalization ask before removing comments. Disconnected blocks, duplicate keys and missing values produce actionable messages instead of silently losing data. Complex ISL stays as exact text when it falls outside the supported graphical subset.
+
+**Import → Open from URL** accepts HTTP(S) GCScript files, saved project JSON, ZIP/TAR.GZ projects and GC edit/run links. Each menu item opens a dialog with **OK**, **Cancel** and inline errors. Choose **Import → Open from payload** to paste a compressed GC payload (`1-H4sI…`) or script/project JSON. Manual imports retain the same add/new-project and save choices, including in embedded mode. Remote file hosts must allow CORS; use a direct URL because redirects and credentialed downloads are disabled. Imported content remains editable data and never executes as HTML or JavaScript.
+
+Blocks automatically scales and centers when opened. Use **Fit blocks** to restore the overview after zooming or panning. The fullscreen icon in the main toolbar enters/exits native fullscreen; Escape also exits it.
 
 **Examples** opens the official catalog plus two hosted showcases: `project.zip` (a multi-file project) and `example.gcscript` (a single script). Both download dynamically and use the same safe import choices as local files.
 
@@ -62,6 +70,10 @@ The tooltip icon beside Find/Replace changes that same preference immediately. *
 ## Open in IDE links and embedded editors
 
 See the [three-editor HTML example](https://gamechangerfinance.github.io/gcscript-studio/examples/gcscript-studio-three-ides.html) for a standalone documentation page with Code, Nodes and Blocks iframes. Its [HTML source](public/examples/gcscript-studio-three-ides.html) needs no build step or parent-side wallet handler. It allows only the fixed Studio edit endpoint in its iframe CSP, validates frame URLs, and loads no child IDEs if the gallery itself is nested. Supported static-host headers also deny framing the gallery; GitHub Pages uses the client guard because it does not apply custom response headers. The IDE remains embeddable. To host your own copy, update the IDE base, frame links and CSP together; changing the inline bootstrap requires refreshing its CSP hash.
+
+Embedded mode includes **Open current project in a new tab**, beside the project-explorer toggle. It carries the current VFS, binary files and empty folders into a full IDE tab in the selected Code, Nodes or Blocks view. The full IDE uses its normal save/import choices.
+
+Grant `allow="fullscreen"` on your iframe to enable the toolbar fullscreen control. Without that permission, open the project in a new tab.
 
 Use **Output → IDE file link** or **IDE project link** to share editable source. File links use the selected file (falling back to the active file) and preserve JSONC comments and formatting. Project links include every VFS file, binary assets, empty directories and the active file. These links open source for editing; they do not build or run it. Check **Embedded mode** in the output dialog to generate a compact editor link.
 
@@ -103,6 +115,7 @@ Embed the resulting URL in a documentation page:
 
 ```html
 <iframe
+  allow="fullscreen"
   title="Editable GCScript example"
   src="https://<IDE>/api/2/edit/1-H4sI...?embed=true&amp;view=code"
   style="width:100%;height:600px;border:0"

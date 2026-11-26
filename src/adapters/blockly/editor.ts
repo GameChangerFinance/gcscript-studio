@@ -62,7 +62,7 @@ export function createBlockEditor(
     sounds: false,
     trashcan: true,
     move: { scrollbars: true, drag: true, wheel: true },
-    zoom: { controls: true, wheel: true, startScale: 0.82, minScale: 0.26, maxScale: 1.8 },
+    zoom: { controls: true, wheel: true, ...config.blockZoom },
     collapse: true,
     comments: true,
   });
@@ -180,9 +180,28 @@ export function createBlockEditor(
   };
   workspace.addChangeListener(listener);
   reload(source);
+  let initialFit = true;
+  let fitFrame = 0;
+  function fit(): void {
+    void Blockly.renderManagement.finishQueuedRenders().then(() => {
+      if (disposed) return;
+      cancelAnimationFrame(fitFrame);
+      fitFrame = requestAnimationFrame(() => {
+        if (disposed || !host.clientWidth || !host.clientHeight) return;
+        Blockly.svgResize(workspace);
+        workspace.zoomToFit();
+        workspace.scrollCenter();
+        initialFit = false;
+      });
+    });
+  }
   const observer = new ResizeObserver(() => {
-    if (!disposed) Blockly.svgResize(workspace);
+    if (!disposed) {
+      Blockly.svgResize(workspace);
+      if (initialFit) fit();
+    }
   });
+  fit();
   observer.observe(host);
   const showDoc = (event: PointerEvent) => {
     const target = event.target instanceof Element ? event.target.closest('[data-id]') : null,
@@ -272,10 +291,7 @@ export function createBlockEditor(
         .sort((a, b) => metadata(b).path.length - metadata(a).path.length)[0];
       if (block && Blockly.common.getSelected() !== block) block.select();
     },
-    fit() {
-      Blockly.svgResize(workspace);
-      workspace.zoomToFit();
-    },
+    fit,
     collapse(value) {
       workspace
         .getAllBlocks(false)
@@ -285,6 +301,7 @@ export function createBlockEditor(
     dispose() {
       disposed = true;
       clearTimeout(timer);
+      cancelAnimationFrame(fitFrame);
       observer.disconnect();
       host.removeEventListener('pointerover', showDoc);
       workspace.removeChangeListener(listener);

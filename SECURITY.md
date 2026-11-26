@@ -8,10 +8,7 @@ Schema and project data are stored in the browser. Schema cache failure does not
 
 Browser tests use disposable fixtures. Never test filesystem overwrite/deletion safety against real host system paths or put sensitive wallet exports in committed fixtures.
 
-Editor links use GC's compressed message decoder and then validate sizes, project
-versions, VFS paths and file representations before changing state. Decoded-size
-checks occur after GC decompression; they do not provide streaming decompression
-limits. Links never execute imported code automatically. The embedded namespace is
+Links never execute imported code automatically. The embedded namespace is
 workspace separation, not an origin/security boundary. Links may appear in browser
 history, host logs and shared documentation; do not publish private project data.
 
@@ -25,4 +22,18 @@ no wallet-result handler or executable command bridge.
 
 ## Bundled dependencies
 
-The installed dependency graph is pinned and checked with `pnpm audit`. Targeted overrides replace upstream-pinned DOMPurify and fast-uri packages with patched releases. The official GC package also ships a prebuilt browser runtime containing bundled dependencies; package overrides do not rewrite that artifact. Upstream vendored fixes require an updated GC browser release. Studio restricts build resources to its virtual `app://` filesystem. A clean package audit does not certify vendored code.
+The installed dependency graph is pinned and checked with `pnpm audit`. Package overrides apply to installed packages; they do not rewrite prebuilt browser bundles. Review those artifacts separately when updating dependencies. Studio restricts build resources to its virtual `app://` filesystem. A clean package audit does not certify bundled code.
+
+## URL and payload imports
+
+Use direct HTTP(S) URLs on hosts you trust. Remote imports require CORS access;
+Studio omits credentials and referrer data and refuses redirects. Size and timeout
+limits reject oversized downloads. Project imports also cap file/directory counts
+(default: 5,000 entries), while compressed imports check actual gzip and
+ZIP/TAR.GZ expansion before opening project contents. ZIP64, split and encrypted
+ZIP archives are unsupported. Imported HTML, SVG and script text is never mounted
+as executable content. Opening source does not build it or launch the wallet.
+
+Import validation and save choices preserve the current project on errors or
+cancellation. GCScript can contain remote resource references; review imported
+source before explicitly building or running it.

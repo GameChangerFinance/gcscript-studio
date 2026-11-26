@@ -18,6 +18,10 @@ Direct wallet launching enforces the Options network through `networkTag` by def
 
 `<base>/api/2/edit/<GC-message>` must serve the SPA shell while preserving the path and `embed`/`view` query parameters. Existing Apache, Netlify, Vercel and Pages SPA fallbacks handle these routes. Asset and schema URLs resolve against the configured Vite base, never the encoded route. A Pages deep link may still carry HTTP 404 while rendering the app.
 
+To enable native fullscreen, add `allow="fullscreen"` to the IDE iframe. The
+fullscreen control applies to the IDE document; the browser manages Escape/exit.
+The embedded new-tab link opens a snapshot of the current project without `embed`.
+
 For documentation embeds, allow the documentation origin in any custom `Content-Security-Policy: frame-ancestors` policy; do not send a conflicting `X-Frame-Options: DENY`/`SAMEORIGIN` header for cross-origin embeds. The embedding page must allow the IDE origin through its `frame-src` policy. If an iframe sandbox is used, it needs script support and browser storage access for the IDE; wallet launches additionally need popup permission. Choose these permissions for your trust model rather than adding a blanket sandbox combination. No parent-window command bridge is exposed.
 
 Verify a real encoded route inside an iframe at the deployment base. Code, Nodes and Blocks initialize from `view=code|node|block`. `embed=true` starts with collapsed side panels and separate project/options/run/result storage. Schema caches remain shared. See [link formats and examples](../README.md#open-in-ide-links-and-embedded-editors).
